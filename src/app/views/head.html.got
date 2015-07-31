@@ -1,0 +1,16 @@
+<meta charset="utf-8">
+<title>{{ .meta_title }}</title>
+<meta name="description" content="{{ .meta_desc }}">
+<meta name="keywords" content="{{ .meta_keywords }}">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="assets/images/app/favicon.png">
+
+
+{{ style "normalize" }}
+{{ style "skeleton" }}
+{{ style "app" }}
+{{ style "backend" }}
+
+{{ script "jquery-2.1.4.min" }}
+{{ script "app" }}
+{{ script "editable" }}

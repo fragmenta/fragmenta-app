@@ -1,2 +1,2 @@
-# fragmenta-app
-A simple example app
+# App example
+A simple example app built with Fragmenta. 

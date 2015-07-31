@@ -1,0 +1,19 @@
+#!/bin/sh
+
+echo "Uploading fragmenta app no ...";
+
+# As a simple example, use rsync to upload files to a destination server
+# you might instead use an ansible playbook to upload and restart the service
+
+opts="-rlDzvhc"
+
+dry="--dry-run"
+server="0.0.0.0"
+src="./"
+dst="core@$server:/srv/www/fragmenta"
+
+echo "Uploading from \n\t$src to \n\t$dst\n";
+
+echo "rsync $opts $dry '$src' '$dst'"
+
+#`rsync $opts $dry '$src' '$dst'`

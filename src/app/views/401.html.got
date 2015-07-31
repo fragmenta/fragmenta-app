@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{ template "app/views/head.html.got" . }}
+</head>
+<body>
+    
+    {{ template "app/views/admin.html.got" . }}
+    
+    <header class="container">
+    {{ template "app/views/header.html.got" . }}
+    </header>
+  
+    <article class="container padded">
+    
+     <h1>Sorry, you don't have permission.</h1>
+     <p><a href="/users/login" class="button">Login</a></p>         
+    
+    </article>
+
+    <footer class="container">
+    {{ template "app/views/footer.html.got" . }}
+    </footer>
+
+</body>
+</html>
