@@ -1,12 +1,16 @@
 # fragmenta-app
-A minimal website built with fragmenta, with only a home page. 
+A minimal website built with fragmenta, with only a home page and minimal styling.
 
 ## Gettting Started
-To use this website, run:
+To create a copy of this app, run:
 
-fragmenta new myapp/path app
+fragmenta new $GOPATH/src/my/app/name app
 
-Then cd to your new path and run
+Then cd to your new app and run migrations:
+
+fragmenta migrate
+
+Then run the server:
 
 fragmenta
 
@@ -22,7 +26,7 @@ This is a suggested structure for an application, the structure used is entirely
 
 
 #### The src/app folder
-This contains
+This contains general app files, resources like pages or users should go in a separate pkg.
 
 
 #### The src/lib folder
@@ -31,4 +35,4 @@ lib is used to store utility packages which can be used by several parts of the 
 
 #### The src/lib/templates folder
 
-Templates for generating new resources are stored in here and used by fragmenta generate.  
+Templates for generating new resources are stored in here and used by fragmenta generate to generate a new resource package, containing assets, code and views.  
