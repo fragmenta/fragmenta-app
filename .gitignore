@@ -1,4 +1,4 @@
 bin/*
-#db/backup/*
-#secrets/*
-#log/*
+db/backup/*
+secrets/*
+log/*
