@@ -1,10 +1,3 @@
-<h1>Welcome to Fragmenta</h1>
-
-<nav>
-   <ul class="inline">
-      
-   </ul>
-</nav>
-
-
-   
+<a href="/" class="logo"><img src="/assets/images/app/logo.png"></a>
+<h1>My App</h1>
+  

@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {{ template "app/views/head.html.got" . }}
+    {{ template "app/views/meta.html.got" . }}
 </head>
 <body>
+    
+    {{ template "app/views/admin.html.got" . }}
     
     <header class="container">
     {{ template "app/views/header.html.got" . }}
     </header>
   
-    <div class="container">
+  
+    <article class="container">
+  
     {{ if .error }}
         <div class="error_box">{{.error}}</div>
     {{ end }}
-        
+    
     {{ .content }}
-    </div>
+    </article>
 
     <footer class="container">
     {{ template "app/views/footer.html.got" . }}

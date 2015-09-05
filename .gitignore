@@ -1,4 +1,4 @@
-bin/fragmenta-server*
-db/backup/*.gz
+bin/*
+db/backup/*
 secrets/*
 log/*

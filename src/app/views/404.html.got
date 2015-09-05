@@ -1,21 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {{ template "app/views/head.html.got" . }}
+    {{ template "app/views/meta.html.got" . }}
 </head>
 <body>
-    
-    {{ template "app/views/admin.html.got" . }}
     
     <header class="container">
     {{ template "app/views/header.html.got" . }}
     </header>
   
-    <article class="container padded">
-    
+    <article class="container">
         <h1>Not Found</h1>
         <p>Sorry, the resource you requested could not be found, if you think this was an error please let us know so that we can fix it.</p>
-   
     </article>
 
     <footer class="container">

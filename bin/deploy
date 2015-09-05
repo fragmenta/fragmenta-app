@@ -1,19 +1,16 @@
 #!/bin/sh
+# A simple shell script to deploy via ansible playlists
+# Use an ansible playbook which copies files up and then restarts the server
+echo "UPLOADING...";
 
-echo "Uploading fragmenta app no ...";
+# choose a playbook
+playbook="/Users/kenny/Documents/Work/Server/Ansible/fragmenta-app.yml"
+if [ "$1" == "production" ]; then
+    playbook="/Users/kenny/Documents/Work/Server/Ansible/fragmenta-app-production.yml"
+fi
 
-# As a simple example, use rsync to upload files to a destination server
-# you might instead use an ansible playbook to upload and restart the service
+# Upload
+echo "Using ansible playbook at $playbook";
+ansible-playbook -t "upload" "$playbook";
 
-opts="-rlDzvhc"
-
-dry="--dry-run"
-server="0.0.0.0"
-src="./"
-dst="core@$server:/srv/www/fragmenta"
-
-echo "Uploading from \n\t$src to \n\t$dst\n";
-
-echo "rsync $opts $dry '$src' '$dst'"
-
-#`rsync $opts $dry '$src' '$dst'`
+exit 0;
