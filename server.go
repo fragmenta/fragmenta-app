@@ -11,8 +11,6 @@ import (
 
 func main() {
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
-
 	// Setup server
 	server, err := server.New()
 	if err != nil {

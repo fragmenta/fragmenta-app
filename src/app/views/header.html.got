@@ -1,3 +1,9 @@
-<a href="/" class="logo"><img src="/assets/images/app/logo.png"></a>
-<h1>My App</h1>
+{{ if .current_user.Admin }}
+  {{ template "app/views/admin.html.got" . }}
+{{ end }}
+<nav>
+  <ul><li><a href="/">Home</a></li>
+  </ul>
+</nav>
+  
   

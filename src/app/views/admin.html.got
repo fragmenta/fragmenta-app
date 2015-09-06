@@ -1,4 +1,3 @@
-{{ if .current_user.Admin }}
 <nav class="admin_nav {{ if dev }}dev{{ end }}">
     
     <ul class="inline admin_links">
@@ -12,4 +11,3 @@
     </ul>
     
 </nav>
-{{ end }}

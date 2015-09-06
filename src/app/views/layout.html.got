@@ -2,26 +2,22 @@
 <html lang="en">
 <head>
     {{ template "app/views/meta.html.got" . }}
+    {{ template "app/views/includes.html.got" . }}
 </head>
 <body>
     
-    {{ template "app/views/admin.html.got" . }}
-    
-    <header class="container">
+    <header>
     {{ template "app/views/header.html.got" . }}
     </header>
   
-  
-    <article class="container">
-  
+    <article>
     {{ if .error }}
         <div class="error_box">{{.error}}</div>
     {{ end }}
-    
     {{ .content }}
     </article>
 
-    <footer class="container">
+    <footer>
     {{ template "app/views/footer.html.got" . }}
     </footer>
 

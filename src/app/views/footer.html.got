@@ -1,6 +1,5 @@
-<div class="row">
-   <p>Made with Fragmenta.</p>
-   <ul class="inline">
+<p>Made with Fragmenta</p>
+<ul class="inline">
         <li><a href="/about">About Us</a></li>
         <li><a href="/privacy">Privacy</a></li>
         {{ if .current_user.Anon }}
@@ -8,5 +7,4 @@
         {{ else }}
         <li><a href="/users/logout" method="post" data-redirect="/">Logout</a></li>
         {{ end }}
-    </ul>
-</div>
+</ul>

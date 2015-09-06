@@ -9,6 +9,9 @@ import (
 func HandleShowHome(context router.Context) {
 	view := view.New(context)
 
+	view.AddKey("meta_title", "Fragmenta")
+	view.AddKey("meta_desc", "Fragmenta App")
+	view.AddKey("meta_keywords", "fragmenta, website")
 	view.AddKey("title", "Hello world!")
 	view.Template("app/views/home.html.got")
 	view.Render(context)
