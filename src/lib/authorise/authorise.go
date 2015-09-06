@@ -2,7 +2,6 @@ package authorise
 
 import (
 	"github.com/fragmenta/auth"
-	"github.com/fragmenta/fragmenta-app/src/users"
 	"github.com/fragmenta/router"
 	"github.com/fragmenta/server"
 )
@@ -29,11 +28,6 @@ func Setup(s *server.Server) {
 
 }
 
-// CurrentUserFilter returns a filter function which sets the current user on the context
-func CurrentUserFilter(c router.Context) {
-	u := CurrentUser(c)
-	c.Set("current_user", u)
-}
 
 // Path authorises the path for the current user
 func Path(c router.Context) bool {
@@ -43,32 +37,6 @@ func Path(c router.Context) bool {
 // PathAndResource authorises the path and resource for the current user
 // if model is nil it is ignored and permission granted
 func PathAndResource(c router.Context, r Resource) bool {
-
-	// Short circuit evaluation if this is a public path
-	if publicPath(c.Path()) {
-		return true
-	}
-
-	user := c.Get("current_user").(*users.User)
-
-	switch user.Role {
-	case users.RoleAdmin:
-		return true
-	default:
-		return false
-	}
-
+    // Restrict by user role or path here
 	return true
-}
-
-// publicPath returns true if this path should always be allowed, regardless of user role
-func publicPath(p string) bool {
-	switch p {
-	case "/":
-		return true
-	case "/users/login":
-		return true
-	default:
-		return false
-	}
 }

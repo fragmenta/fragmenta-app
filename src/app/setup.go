@@ -10,7 +10,7 @@ import (
 	"github.com/fragmenta/server/log"
 	"github.com/fragmenta/view"
 
-	//	"github.com/fragmenta/fragmenta-app/src/lib/authorise"
+	"github.com/fragmenta/fragmenta-app/src/lib/authorise"
 )
 
 var appAssets *assets.Collection
@@ -36,11 +36,7 @@ func Setup(server *server.Server) {
 	}
 
 	// Setup our authentication and authorisation
-	//authorise.Setup(server)
-
-	// Add a prefilter to store the current user on the context, so that we only fetch it once
-	// We use this below in PathAndResource, and also in views to determine current user attributes
-	//router.AddFilter(authorise.CurrentUserFilter)
+	authorise.Setup(server)
 
 	// Setup our router and handlers
 	setupRoutes(router)
