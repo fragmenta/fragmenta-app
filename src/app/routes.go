@@ -17,6 +17,6 @@ func setupRoutes(r *router.Router) {
 	r.Add("/favicon.ico", fileHandler)
 
 	// Add the home page route
-	r.Add("/", todoHandler)
+	r.Add("/", homeHandler)
 
 }
