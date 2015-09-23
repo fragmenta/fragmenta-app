@@ -35,7 +35,8 @@ func Send(recipients []string, subject string, template string, context map[stri
 	message.AddTos(recipients)
 	message.SetSubject(subject)
 
-	// Hack for now, consider options TODO
+	// TODO: consider best way to set arbitrary email headers
+	// perhaps require mail.New() for object which we can then set headers on etc...
 	if context["reply_to"] != nil {
 		replyTo := context["reply_to"].(string)
 		message.SetReplyTo(replyTo)
@@ -43,20 +44,14 @@ func Send(recipients []string, subject string, template string, context map[stri
 
 	// Load the template, and substitute using context
 	// We should possibly set layout from caller too?
-	view := view.New(&renderContext{})
+	view := view.NewWithPath("", nil)
 	view.Template(template)
 	view.Context(context)
 
-	// We have a panic: runtime error: invalid memory address or nil pointer dereference
-	// because of reloading templates on the fly I think
-	// github.com/fragmenta/view/parser/template.html.go:90
-	html, err := view.RenderString()
+	html, err := view.RenderToString()
 	if err != nil {
 		return err
 	}
-
-	// For debug, print message
-	//fmt.Printf("SENDING MAIL:\n%s", html)
 
 	message.SetHTML(html)
 
@@ -66,21 +61,4 @@ func Send(recipients []string, subject string, template string, context map[stri
 // SendOne sends email to ONE recipient only
 func SendOne(recipient string, subject string, template string, context map[string]interface{}) error {
 	return Send([]string{recipient}, subject, template, context)
-}
-
-// This is a dummy internal render context which doesn't provide any info - we explicitly set our info
-// TODO: Perhaps find a more elegant solution?
-
-// RenderContext provides an empty context for rendering mail, we have no preferred path
-type renderContext struct {
-}
-
-// Path returns an empty path
-func (m *renderContext) Path() string {
-	return ""
-}
-
-// RenderContext returns a nil context
-func (m *renderContext) RenderContext() map[string]interface{} {
-	return nil
 }

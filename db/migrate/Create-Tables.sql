@@ -8,4 +8,4 @@ CREATE TABLE fragmenta_metadata (
     status int
 );
 
-ALTER TABLE fragmenta_metadata OWNER TO [[.fragmenta_db_user]];
+ALTER TABLE fragmenta_metadata OWNER TO "[[.fragmenta_db_user]]";
