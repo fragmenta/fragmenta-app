@@ -1,10 +1,15 @@
+@font-face {
+  font-family: Lato
+  src: url(/assets/fonts/lato.ttf);
+}
+
 body {
-    font:1.8em/2  "Lato",  "Roboto",  "Helvetica Neue",Arial,sans-serif;
+    font:1.6em/2  "Lato",  "Roboto",  "Helvetica Neue",Arial,sans-serif;
 }
 
 h1,h2,h3,h4,h5,h6 {
     letter-spacing:normal;
-    color:#222;
+     color:#666;
     font-weight:300;
     font-style:normal;
     margin: 0.8rem 0 0.5rem 0; 
@@ -13,7 +18,6 @@ h1,h2,h3,h4,h5,h6 {
 h1,h2,h3 {
   font-family:Futura,"Trebuchet MS",Arial,sans-serif;
   font-style:normal;
-  font-weight:100;
   text-align:center;
 }
 
@@ -23,15 +27,15 @@ h1 {
 }
 
 h2 {
-  color:#333;
+  color:#555;
 }
 
 h2 b {
-  color:#666;
+  color:#888;
 }
 
 h3 {
-  
+ 
 }
 
 h4 {
@@ -41,7 +45,6 @@ h4 {
 h5 {
   font-size:1.4rem;
   text-transform:uppercase;
-  font-weight:200;
   letter-spacing:0.1rem;
 }
 
@@ -72,14 +75,56 @@ code {
   clear:both;
 }
 
-
-.button,.button:hover {
-  border:1px solid #fff;
-  font-size:1.4rem;
-  line-height:2rem;
-  padding:0.5rem 1.5rem;
+.left {
+  text-align:left;
 }
 
+.right {
+  text-align:right;
+}
+
+.center {
+  text-align:center;
+}
+
+.button, button, input[type="submit"], input[type="reset"], input[type="button"] {
+  color:#fff;
+  background-color:#05afe7;
+  border:none;
+  font-size:1em;
+  font-weight:300;
+  height:3.8rem;
+  line-height:3.8rem;
+  padding:0rem 2rem;
+}
+
+.button:hover, button:hover, input[type="submit"]:hover, input[type="reset"]:hover, input[type="button"]:hover {
+  color:#fff;
+  text-shadow:0 0 0.4rem rgba(0,0,0,0.2)
+}
+
+.button.grey {
+  background-color:#aaa;
+}
+
+.button.orange {
+  background-color:#f49a18;
+}
+
+.button.small {
+  height:3rem;
+  line-height:3rem;
+  font-size:0.9em;
+  padding:0rem 1rem;
+  margin:0;
+}
+
+.inline-buttons {
+  text-align:center;
+}
+.inline-buttons .button {
+  margin:1rem 1rem 2rem 1rem;
+}
 
 ul.list {
   list-style:disc;
@@ -97,8 +142,9 @@ ul.inline, nav ul {
 
 ul.inline li, nav ul li {
   display: inline-block;
-  padding:0 2rem;
   white-space: nowrap;
+  padding:0 2rem;
+  margin:0 0 0.2rem 0;
 }
 
 header a {
@@ -110,7 +156,6 @@ header a:hover {
 }
 
 header {
-  height:4rem;
   margin:0 0 0 0;
   color:#fff;
   border-bottom:2px solid #f1e42a;
@@ -120,7 +165,7 @@ header {
 
 footer {
   clear:both;
-  font-size:0.8em;
+  font-size:0.9em;
   text-align:center;
   padding:2rem 0 1rem 0;
   margin:4rem 0 0 0;
@@ -128,32 +173,48 @@ footer {
   border-bottom:2px solid #f49a18;
 }
 
+nav {
+    clear:both;
+    font-weight:300;
+}
+
+nav.admin {
+  background-color:#000;
+}
+
 article {
   clear:both;
   padding:0;
-}
-
-section {
-  display:block;
-  padding:1rem 2rem;
-  margin:0 auto;
-}
-
-section.home {
-  text-align:center;
   min-height:50rem;
 }
 
+section {
+  clear:both;
+  display:block;
+  padding:1rem 2rem;
+  margin:1rem auto;
+}
+
+
 section.feature {
-  padding:0;
   background-color:#05afe7;
   color:#fff;
   width:100%;
   text-align:center;
+  margin:0 0 2rem 0;
+  padding:0 0 0.5rem 0;
 }
 
-.logo img {
-  display:block;
-  margin:2rem auto;
-  height:100px;
+section.feature a, section.feature h3, section.feature h4, section.feature h5 {
+  color:#fff;
+}
+
+section.padded {
+  padding:0 2rem;
+  max-width:80em;
+}
+
+section.narrow {
+  padding:0 2rem;
+  max-width:50em;
 }
