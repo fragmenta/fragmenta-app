@@ -1,0 +1,7 @@
+<article>
+<h1>{{ .user.Name }}</h1>
+<div class="text">
+    	<p>Name: {{ .user.Name }}</p>
+
+</div>
+</article>
