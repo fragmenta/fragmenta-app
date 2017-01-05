@@ -1,61 +1,64 @@
 package [[ .fragmenta_resource ]]actions
 
 import (
-
+	"github.com/fragmenta/auth/can"
 	"github.com/fragmenta/router"
 	"github.com/fragmenta/view"
 
-	"[[ .fragmenta_app_path ]]/[[ .fragmenta_resources ]]"
-    "[[ .fragmenta_app_path ]]/lib/authorise"
+	"github.com/fragmenta/fragmenta-app/src/lib/auth"
+	"github.com/fragmenta/fragmenta-app/src/[[ .fragmenta_resources ]]"
 )
 
-// HandleUpdateShow renders the form to update a [[ .fragmenta_resource ]]
+// HandleUpdateShow renders the form to update a [[ .fragmenta_resource ]].
 func HandleUpdateShow(context router.Context) error {
-	
-    // Find the [[ .fragmenta_resource ]]
+
+	// Find the [[ .fragmenta_resource ]]
 	[[ .fragmenta_resource ]], err := [[ .fragmenta_resources ]].Find(context.ParamInt("id"))
 	if err != nil {
-		return router.NotFoundError(err)	
-    }
+		return router.NotFoundError(err)
+	}
 
 	// Authorise update [[ .fragmenta_resource ]]
-	err = authorise.Resource(context, [[ .fragmenta_resource ]]) 
-    if err != nil {
-		return router.NotAuthorizedError(err)	
-    }
+	err = can.Update([[ .fragmenta_resource ]], auth.CurrentUser(context))
+	if err != nil {
+		return router.NotAuthorizedError(err)
+	}
 
-    // Render the template
+	// Render the template
 	view := view.New(context)
 	view.AddKey("[[ .fragmenta_resource ]]", [[ .fragmenta_resource ]])
-    return view.Render()
+	return view.Render()
 }
 
-// HandleUpdateShow handles the POST of the form to update a [[ .fragmenta_resource ]]
+// HandleUpdate handles the POST of the form to update a [[ .fragmenta_resource ]]
 func HandleUpdate(context router.Context) error {
 
 	// Find the [[ .fragmenta_resource ]]
 	[[ .fragmenta_resource ]], err := [[ .fragmenta_resources ]].Find(context.ParamInt("id"))
 	if err != nil {
-		return router.NotFoundError(err)	
-    }
+		return router.NotFoundError(err)
+	}
 
 	// Authorise update [[ .fragmenta_resource ]]
-	err = authorise.Resource(context, [[ .fragmenta_resource ]])
-    if err != nil {
-		return router.NotAuthorizedError(err)	
-    }
+	err = can.Update([[ .fragmenta_resource ]], auth.CurrentUser(context))
+	if err != nil {
+		return router.NotAuthorizedError(err)
+	}
 
 	// Update the [[ .fragmenta_resource ]] from params
 	params, err := context.Params()
 	if err != nil {
-		return router.InternalError(err)		
-	}
-	err = [[ .fragmenta_resource ]].Update(params.Map())
-    if err != nil {
-		return router.InternalError(err)		
+		return router.InternalError(err)
 	}
 
+	// Validate the params, removing any we don't accept
+	[[ .fragmenta_resource ]]Params := [[ .fragmenta_resource ]].ValidateParams(params.Map(), [[ .fragmenta_resources ]].AllowedParams())
+
+	err = [[ .fragmenta_resource ]].Update([[ .fragmenta_resource ]]Params)
+	if err != nil {
+		return router.InternalError(err)
+	}
 
 	// Redirect to [[ .fragmenta_resource ]]
-	return router.Redirect(context, [[ .fragmenta_resource ]].URLShow() )
+	return router.Redirect(context, [[ .fragmenta_resource ]].ShowURL())
 }

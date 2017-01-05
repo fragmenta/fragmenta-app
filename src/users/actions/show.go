@@ -1,11 +1,11 @@
 package useractions
 
 import (
-	//"github.com/fragmenta/auth/can"
+	"github.com/fragmenta/auth/can"
 	"github.com/fragmenta/router"
 	"github.com/fragmenta/view"
 
-	//"github.com/fragmenta/fragmenta-app/src/lib/auth"
+	"github.com/fragmenta/fragmenta-app/src/lib/auth"
 	"github.com/fragmenta/fragmenta-app/src/users"
 )
 
@@ -17,13 +17,13 @@ func HandleShow(context router.Context) error {
 	if err != nil {
 		return router.NotFoundError(err)
 	}
-	/*
-		// Authorise access
-		err = can.Show(user, auth.CurrentUser(context))
-		if err != nil {
-			return router.NotAuthorizedError(err)
-		}
-	*/
+
+	// Authorise access
+	err = can.Show(user, auth.CurrentUser(context))
+	if err != nil {
+		return router.NotAuthorizedError(err)
+	}
+
 	// Render the template
 	w := context.Writer()
 	// Set cache control headers

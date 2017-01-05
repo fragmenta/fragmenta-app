@@ -2,10 +2,21 @@ package app
 
 import (
 	"github.com/fragmenta/router"
+
+	"github.com/fragmenta/fragmenta-app/src/users/actions"
 )
 
-// Define routes for this app
-func setupRoutes(r *router.Router) {
+// SetupRoutes adds routes for this app to this router.
+func SetupRoutes(r *router.Router) {
+
+	// Resource Routes
+	r.Add("/users", useractions.HandleIndex)
+	r.Add("/users/create", useractions.HandleCreateShow)
+	r.Add("/users/create", useractions.HandleCreate).Post()
+	r.Add("/users/{id:[0-9]+}/update", useractions.HandleUpdateShow)
+	r.Add("/users/{id:[0-9]+}/update", useractions.HandleUpdate).Post()
+	r.Add("/users/{id:[0-9]+}/destroy", useractions.HandleDestroy).Post()
+	r.Add("/users/{id:[0-9]+}", useractions.HandleShow)
 
 	// Set the default file handler
 	r.FileHandler = fileHandler

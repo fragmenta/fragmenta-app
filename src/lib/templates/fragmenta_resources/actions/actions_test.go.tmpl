@@ -1,22 +1,221 @@
-// Tests for the [[ .fragmenta_resources ]] actions package
 package [[ .fragmenta_resource ]]actions
 
 import (
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
 	"testing"
+
+	"github.com/fragmenta/query"
+
+	"github.com/fragmenta/fragmenta-app/src/lib/resource"
+	"github.com/fragmenta/fragmenta-app/src/[[ .fragmenta_resources ]]"
+	"github.com/fragmenta/fragmenta-app/src/users"
 )
 
-// Log a failure message, given msg, expected and result
-func fail(t *testing.T, msg string, expected interface{}, result interface{}) {
-	t.Fatalf("\n------FAILURE------\nTest failed: %s expected:%v result:%v", msg, expected, result)
+// names is used to test setting and getting the first string field of the [[ .fragmenta_resource ]].
+var names = []string{"foo", "bar"}
+
+// TestSetup performs setup for integration tests
+// using the test database, real views, and mock authorisation
+// If we can run this once for global tests it might be more efficient?
+func TestSetup(t *testing.T) {
+	err := resource.SetupTestDatabase(3)
+	if err != nil {
+		t.Fatalf("[[ .fragmenta_resources ]]: Setup db failed %s", err)
+	}
+
+	// Set up mock auth
+	resource.SetupAuthorisation()
+
+	// Load templates for rendering
+	resource.SetupView(3)
+
+	// Delete all [[ .fragmenta_resources ]] to ensure we get consistent results?
+	query.ExecSQL("delete from [[ .fragmenta_resources ]];")
+	query.ExecSQL("ALTER SEQUENCE [[ .fragmenta_resources ]]_id_seq RESTART WITH 1;")
 }
 
+// Test GET /[[ .fragmenta_resources ]]/create
+func TestShowCreate[[ .Fragmenta_Resource ]](t *testing.T) {
 
-// Test create of [[ .Fragmenta_Resource ]]
+	// Create request context
+	w, c := resource.GetRequestContext("/[[ .fragmenta_resources ]]/create", "/[[ .fragmenta_resources ]]/create", users.MockAdmin())
+
+	// Run the handler
+	err := HandleCreateShow(c)
+
+	// Test the error response
+	if err != nil || w.Code != http.StatusOK {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error handling HandleCreateShow %s", err)
+	}
+
+	// Test the body for a known pattern
+	pattern := "resource-update-form"
+	if !strings.Contains(w.Body.String(), pattern) {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: unexpected response for HandleCreateShow expected:%s got:%s", pattern, w.Body.String())
+	}
+
+}
+
+// Test POST /[[ .fragmenta_resources ]]/create
 func TestCreate[[ .Fragmenta_Resource ]](t *testing.T) {
-    
+	form := url.Values{}
+	form.Add("name", names[0])
+	body := strings.NewReader(form.Encode())
+
+	// Create request context
+	w, c := resource.PostRequestContext("/[[ .fragmenta_resources ]]/create", "/[[ .fragmenta_resources ]]/create", body, users.MockAdmin())
+
+	// Run the handler to update the [[ .fragmenta_resource ]]
+	err := HandleCreate(c)
+	if err != nil {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error handling HandleCreate %s", err)
+	}
+
+	// Test we get a redirect after update (to the [[ .fragmenta_resource ]] concerned)
+	if w.Code != http.StatusFound {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: unexpected response code for HandleCreate expected:%d got:%d", http.StatusFound, w.Code)
+	}
+
+	// Check the [[ .fragmenta_resource ]] name is in now value names[1]
+	[[ .fragmenta_resource ]], err := [[ .fragmenta_resources ]].Find(1)
+	if err != nil {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error finding created [[ .fragmenta_resource ]] %s", err)
+	}
+	if [[ .fragmenta_resource ]].ID != 1 || [[ .fragmenta_resource ]].Name != names[0] {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error with created [[ .fragmenta_resource ]] values: %v", [[ .fragmenta_resource ]])
+	}
 }
 
-// Test update of [[ .Fragmenta_Resource ]]
+// Test GET /[[ .fragmenta_resources ]]
+func TestList[[ .Fragmenta_Resources ]](t *testing.T) {
+
+	// Create request context
+	w, c := resource.GetRequestContext("/[[ .fragmenta_resources ]]", "/[[ .fragmenta_resources ]]", users.MockAdmin())
+
+	// Run the handler
+	err := HandleIndex(c)
+
+	// Test the error response
+	if err != nil || w.Code != http.StatusOK {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error handling HandleIndex %s", err)
+	}
+
+	// Test the body for a known pattern
+	pattern := "data-table-head"
+	if !strings.Contains(w.Body.String(), pattern) {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: unexpected response for HandleIndex expected:%s got:%s", pattern, w.Body.String())
+	}
+
+}
+
+// Test of GET /[[ .fragmenta_resources ]]/1
+func TestShow[[ .Fragmenta_Resource ]](t *testing.T) {
+
+	// Create request context
+	w, c := resource.GetRequestContext("/[[ .fragmenta_resources ]]/1", "/[[ .fragmenta_resources ]]/{id:[0-9]+}", users.MockAdmin())
+
+	// Run the handler
+	err := HandleShow(c)
+
+	// Test the error response
+	if err != nil || w.Code != http.StatusOK {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error handling HandleShow %s", err)
+	}
+
+	// Test the body for a known pattern
+	pattern := fmt.Sprintf("<h1>%s</h1>", names[0])
+	if !strings.Contains(w.Body.String(), pattern) {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: unexpected response for HandleShow expected:%s got:%s", pattern, w.Body.String())
+	}
+}
+
+// Test GET /[[ .fragmenta_resources ]]/123/update
+func TestShowUpdate[[ .Fragmenta_Resource ]](t *testing.T) {
+
+	// Create request context
+	w, c := resource.GetRequestContext("/[[ .fragmenta_resources ]]/1/update", "/[[ .fragmenta_resources ]]/{id:[0-9]+}/update", users.MockAdmin())
+
+	// Run the handler
+	err := HandleUpdateShow(c)
+
+	// Test the error response
+	if err != nil || w.Code != http.StatusOK {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error handling HandleCreateShow %s", err)
+	}
+
+	// Test the body for a known pattern
+	pattern := "resource-update-form"
+	if !strings.Contains(w.Body.String(), pattern) {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: unexpected response for HandleCreateShow expected:%s got:%s", pattern, w.Body.String())
+	}
+
+}
+
+// Test POST /[[ .fragmenta_resources ]]/123/update
 func TestUpdate[[ .Fragmenta_Resource ]](t *testing.T) {
-    
+	form := url.Values{}
+	form.Add("name", names[1])
+	body := strings.NewReader(form.Encode())
+
+	// Create request context
+	w, c := resource.PostRequestContext("/[[ .fragmenta_resources ]]/1/update", "/[[ .fragmenta_resources ]]/{id:[0-9]+}/update", body, users.MockAdmin())
+
+	// Run the handler to update the [[ .fragmenta_resource ]]
+	err := HandleUpdate(c)
+	if err != nil {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error handling HandleUpdate[[ .Fragmenta_Resource ]] %s", err)
+	}
+
+	// Test we get a redirect after update (to the [[ .fragmenta_resource ]] concerned)
+	if w.Code != http.StatusFound {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: unexpected response code for HandleUpdate[[ .Fragmenta_Resource ]] expected:%d got:%d", http.StatusFound, w.Code)
+	}
+
+	// Check the [[ .fragmenta_resource ]] name is in now value names[1]
+	[[ .fragmenta_resource ]], err := [[ .fragmenta_resources ]].Find(1)
+	if err != nil {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error finding updated [[ .fragmenta_resource ]] %s", err)
+	}
+	if [[ .fragmenta_resource ]].ID != 1 || [[ .fragmenta_resource ]].Name != names[1] {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error with updated [[ .fragmenta_resource ]] values: %v", [[ .fragmenta_resource ]])
+	}
+
+}
+
+// Test of POST /[[ .fragmenta_resources ]]/123/destroy
+func TestDelete[[ .Fragmenta_Resource ]](t *testing.T) {
+
+	body := strings.NewReader(``)
+
+	// Test permissions - anon users can't destroy [[ .fragmenta_resources ]]
+
+	// Create request context
+	_, c := resource.PostRequestContext("/[[ .fragmenta_resources ]]/2/destroy", "/[[ .fragmenta_resources ]]/{id:[0-9]+}/destroy", body, users.MockAnon())
+
+	// Run the handler to test failure as anon
+	err := HandleDestroy(c)
+	if err == nil { // failure expected
+		t.Fatalf("[[ .fragmenta_resource ]]actions: unexpected response for HandleDestroy as anon, expected failure")
+	}
+
+	// Now test deleting the [[ .fragmenta_resource ]] created above as admin
+	// Create request context
+	w, c := resource.PostRequestContext("/[[ .fragmenta_resources ]]/1/destroy", "/[[ .fragmenta_resources ]]/{id:[0-9]+}/destroy", body, users.MockAdmin())
+
+	// Run the handler
+	err = HandleDestroy(c)
+
+	// Test the error response is 302 StatusFound
+	if err != nil {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: error handling HandleDestroy %s", err)
+	}
+
+	// Test we get a redirect after delete
+	if w.Code != http.StatusFound {
+		t.Fatalf("[[ .fragmenta_resource ]]actions: unexpected response code for HandleDestroy expected:%d got:%d", http.StatusFound, w.Code)
+	}
+
 }

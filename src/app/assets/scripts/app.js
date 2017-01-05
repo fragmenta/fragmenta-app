@@ -1,16 +1,10 @@
 DOM.Ready(function(){
   // Show/Hide elements with selector in attribute data-show
   ActivateShowlinks();
-  ActivatePackagelinks();
   // Perform AJAX post on click on method=post|delete anchors
   ActivateMethodLinks();
   // Submit forms of class .filter-form when filter fields change
   ActivateFilterFields();
-  // Activate pager links (on home)
-  ActivatePagerlinks();
-  // Activate the map overlay
-  ActivateMap();
-  
 });
 
 // Perform AJAX post on click on method=post|delete anchors
@@ -64,50 +58,5 @@ function ActivateShowlinks() {
       });
       
       return false;
-  });
-}
-
-// Show/Hide elements with selector in attribute href - do this with a hidden class name
-function ActivatePackagelinks() {
-  DOM.On('.feature_dot','click',function(e){
-    var selector = this.getAttribute('href');
-    
-     // First hide all packages
-     DOM.Each(".package",function(el,i){
-        el.className = 'package hidden';
-     });
-     
-     DOM.First(selector).className = 'package';
-     
-     return false;
-  });
-}
-
-
-// Show/Hide elements with selector in attribute data-show
-function ActivatePagerlinks() {
-  DOM.On('.pager li a','click',function(e){
-    // Update pager selection stage
-    DOM.ForEach(this.parentNode.parentNode.querySelectorAll('a'),function(el){
-      el.className = '';
-    });
-    this.className = 'selected';
-    
-    // Update pager elements - first find the element linked (href=#id)
-    var el = DOM.First(this.getAttribute('href'));
-    // Hide everything with the same first class
-    DOM.Hide("."+el.className.split(" ")[0]);
-    // Show the element concerned
-    el.style.display = 'block';
-    
-    e.preventDefault();
-    return false;
-  });
-}
-
-
-function ActivateMap() {
-  DOM.On('.contact_iframe_container','click',function(e){
-    this.style.pointerEvents = 'none';/* ignore this after first click on it */
   });
 }

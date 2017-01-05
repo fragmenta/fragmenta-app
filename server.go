@@ -8,24 +8,45 @@ import (
 	"github.com/fragmenta/fragmenta-app/src/app"
 )
 
+// Main entrypoint for the server which performs bootstrap, setup
+// then runs the server. Most setup is delegated to the src/app pkg.
 func main() {
 
-	// Setup server
-	server, err := server.New()
+	// Bootstrap if required (no config file found).
+	if app.RequiresBootStrap() {
+		err := app.Bootstrap()
+		if err != nil {
+			fmt.Printf("Error bootstrapping server %s\n", err)
+			return
+		}
+	}
+
+	// Setup our server from config
+	s, err := SetupServer()
 	if err != nil {
-		fmt.Printf("Error creating server %s", err)
+		fmt.Printf("server: error setting up %s\n", err)
 		return
 	}
 
-	app.Setup(server)
-
-	// Inform user of server setup
-	server.Logf("#info TEST Starting server in %s mode on port %d", server.Mode(), server.Port())
-
 	// Start the server
-	err = server.Start()
+	err = s.Start()
 	if err != nil {
-		server.Fatalf("Error starting server %s", err)
+		s.Fatalf("server: error starting %s\n", err)
 	}
 
+}
+
+// SetupServer reads the config and sets the server up by calling app.Setup().
+func SetupServer() (*server.Server, error) {
+
+	// Setup server
+	s, err := server.New()
+	if err != nil {
+		return nil, err
+	}
+
+	// Call the app to perform additional setup
+	app.Setup(s)
+
+	return s, nil
 }

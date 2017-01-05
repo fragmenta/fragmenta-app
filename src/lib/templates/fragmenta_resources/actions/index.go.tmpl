@@ -1,27 +1,26 @@
 package [[ .fragmenta_resource ]]actions
 
 import (
-   "strings"
-
+	"github.com/fragmenta/auth/can"
 	"github.com/fragmenta/router"
 	"github.com/fragmenta/view"
 
-	"[[ .fragmenta_app_path ]]/[[ .fragmenta_resources ]]"
-    "[[ .fragmenta_app_path ]]/lib/authorise"
+	"github.com/fragmenta/fragmenta-app/src/lib/auth"
+	"github.com/fragmenta/fragmenta-app/src/[[ .fragmenta_resources ]]"
 )
 
-// HandleIndex displays a list of [[ .fragmenta_resources ]]
+// HandleIndex displays a list of [[ .fragmenta_resources ]].
 func HandleIndex(context router.Context) error {
 
-	// Authorise
-	err := authorise.Path(context)
-    if err != nil {
-		return router.NotAuthorizedError(err)	
-    }
+	// Authorise list [[ .fragmenta_resource ]]
+	err := can.List([[ .fragmenta_resources ]].New(), auth.CurrentUser(context))
+	if err != nil {
+		return router.NotAuthorizedError(err)
+	}
 
 	// Build a query
-    q := [[ .fragmenta_resources ]].Query()
-    
+	q := [[ .fragmenta_resources ]].Query()
+
 	// Order by required order, or default to id asc
 	switch context.Param("order") {
 
@@ -36,30 +35,24 @@ func HandleIndex(context router.Context) error {
 
 	default:
 		q.Order("id asc")
-        
+
 	}
 
-    
-	// Filter if necessary - this assumes name and summary cols
+	// Filter if requested
 	filter := context.Param("filter")
 	if len(filter) > 0 {
-		filter = strings.Replace(filter, "&", "", -1)
-		filter = strings.Replace(filter, " ", "", -1)
-		filter = strings.Replace(filter, " ", " & ", -1)
-		q.Where("( to_tsvector(name) || to_tsvector(summary) @@ to_tsquery(?) )", filter)
+		q.Where("name ILIKE ?", filter)
 	}
-    
 
 	// Fetch the [[ .fragmenta_resources ]]
-    results, err := [[ .fragmenta_resources ]].FindAll(q)
+	results, err := [[ .fragmenta_resources ]].FindAll(q)
 	if err != nil {
-		return router.InternalError(err)		
+		return router.InternalError(err)
 	}
-    
+
 	// Render the template
 	view := view.New(context)
-    view.AddKey("filter", filter)
+	view.AddKey("filter", filter)
 	view.AddKey("[[ .fragmenta_resources ]]", results)
-    return view.Render()
-
+	return view.Render()
 }

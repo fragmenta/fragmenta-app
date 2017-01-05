@@ -10,34 +10,27 @@ import (
 	"github.com/fragmenta/view"
 )
 
-// HandleShowHome serves our home page
-func homeHandler(context router.Context) error {
-
-	view := view.New(context)
-	view.AddKey("title", "Fragmenta app")
-	view.Template("app/views/home.html.got")
-	return view.Render()
-}
-
-// Default static file handler, handles assets too
+// Serve static files (assets, images etc)
 func fileHandler(context router.Context) error {
 
+	// First try serving assets
 	err := serveAsset(context)
 	if err == nil {
-		return nil // return on success only for assets
+		return nil
 	}
 
-	// Finally try serving a file from public
+	// If assets fail, try to serve file in public
 	return serveFile(context)
 }
 
-// Default file handler, used in development - in production serve with nginx
+// serveFile serves a file from ./public if it exists
 func serveFile(context router.Context) error {
-	// Assuming we're running from the root of the website
-	localPath := "./public" + path.Clean(context.Path())
 
-	if _, err := os.Stat(localPath); err != nil {
-		// If file not found return error
+	// Try a local path in the public directory
+	localPath := "./public" + path.Clean(context.Path())
+	s, err := os.Stat(localPath)
+	if err != nil {
+		// If file not found return 404
 		if os.IsNotExist(err) {
 			return router.NotFoundError(err)
 		}
@@ -46,12 +39,18 @@ func serveFile(context router.Context) error {
 		return router.NotAuthorizedError(err)
 	}
 
-	// If the file exists and we can access it, serve it
+	// If not a file return immediately
+	if s.IsDir() {
+		return nil
+	}
+
+	// If the file exists and we can access it, serve it with cache control
+	context.Writer().Header().Set("Cache-Control", "max-age:3456000, public")
 	http.ServeFile(context, context.Request(), localPath)
 	return nil
 }
 
-// Handle serving assets in dev (if we can) - return true on success
+// serveAsset serves a file from ./public/assets usings appAssets
 func serveAsset(context router.Context) error {
 	p := path.Clean(context.Path())
 
@@ -66,7 +65,9 @@ func serveAsset(context router.Context) error {
 		return router.NotFoundError(nil)
 	}
 
+	// Serve the local file, with cache control
 	localPath := "./" + f.LocalPath()
+	context.Writer().Header().Set("Cache-Control", "max-age:3456000, public")
 	http.ServeFile(context, context.Request(), localPath)
 	return nil
 }
@@ -76,20 +77,18 @@ func errHandler(context router.Context, e error) {
 
 	// Cast the error to a status error if it is one, if not wrap it in a Status 500 error
 	err := router.ToStatusError(e)
+	context.Logf("#error %s\n", err)
 
 	view := view.New(context)
-
 	view.AddKey("title", err.Title)
 	view.AddKey("message", err.Message)
-
+	// In production, provide no detail for security reasons
 	if !context.Production() {
 		view.AddKey("status", err.Status)
 		view.AddKey("file", err.FileLine())
 		view.AddKey("error", err.Err)
 	}
-
 	view.Template("app/views/error.html.got")
-
-	context.Logf("#error %s\n", err)
+	context.Writer().WriteHeader(err.Status)
 	view.Render()
 }

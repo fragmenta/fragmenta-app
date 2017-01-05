@@ -11,37 +11,50 @@ import (
 	"github.com/fragmenta/view"
 )
 
-// appAssets holds a reference to our assets for use in asset setup
+// Config is used to pass settings to setup functions.
+type Config interface {
+	Production() bool
+	Configuration() map[string]string
+	Config(string) string
+}
+
+// appAssets holds a reference to our assets for use in asset setup used in the handlers.
 var appAssets *assets.Collection
 
-// Setup sets up our application
+// Setup sets up our application.
 func Setup(server *server.Server) {
 
 	// Setup log
 	server.Logger = log.New(server.Config("log"), server.Production())
 
 	// Set up our assets
-	setupAssets(server)
+	SetupAssets(server)
 
 	// Setup our view templates
-	setupView(server)
+	SetupView(server)
 
 	// Setup our database
-	setupDatabase(server)
+	SetupDatabase(server)
 
-	// Routing
+	// Set up auth pkg and authorisation for access
+	SetupAuth(server)
+
+	// Create a new router
 	router, err := router.New(server.Logger, server)
 	if err != nil {
 		server.Fatalf("Error creating router %s", err)
 	}
 
 	// Setup our router and handlers
-	setupRoutes(router)
+	SetupRoutes(router)
+
+	// Inform user of imminent server setup
+	server.Logf("#info Starting server in %s mode on port %d", server.Mode(), server.Port())
 
 }
 
-// Compile or copy in our assets from src into the public assets folder, for use by the app
-func setupAssets(server *server.Server) {
+// SetupAssets compiles or copies our assets from src into the public assets folder.
+func SetupAssets(server *server.Server) {
 	defer server.Timef("#info Finished loading assets in %s", time.Now())
 
 	// Compilation of assets is done on deploy
@@ -69,7 +82,8 @@ func setupAssets(server *server.Server) {
 
 }
 
-func setupView(server *server.Server) {
+// SetupView sets up the view package by loadind templates.
+func SetupView(server *server.Server) {
 	defer server.Timef("#info Finished loading templates in %s", time.Now())
 
 	view.Production = server.Production()
@@ -80,8 +94,8 @@ func setupView(server *server.Server) {
 
 }
 
-// Setup db - at present query pkg manages this...
-func setupDatabase(server *server.Server) {
+// SetupDatabase sets up the db with query given our server config.
+func SetupDatabase(server *server.Server) {
 	defer server.Timef("#info Finished opening in %s database %s for user %s", time.Now(), server.Config("db"), server.Config("db_user"))
 
 	config := server.Configuration()
