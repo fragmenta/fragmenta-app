@@ -20,13 +20,8 @@ func New(r string) *Email {
 		Layout:   "lib/mail/views/layout.html.got",
 		Template: "lib/mail/views/template.html.got",
 	}
-	e.AddRecipient(r)
-	return e
-}
-
-// AddRecipient adds a recipient to the email.
-func (e *Email) AddRecipient(r string) {
 	e.Recipients = append(e.Recipients, r)
+	return e
 }
 
 // String returns a formatted string representation for debug.

@@ -14,10 +14,14 @@ CREATE TABLE users (
 id SERIAL NOT NULL,
 created_at timestamp,
 updated_at timestamp,
-email text,
-name text,
 status integer,
 role integer,
-encrypted_password text
+name text,
+email text,
+password_hash text,
+password_reset_token text,
+password_reset_at timestamp
 );
 ALTER TABLE users OWNER TO "[[.fragmenta_db_user]]";
+
+
