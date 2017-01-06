@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fragmenta/auth"
 	"github.com/fragmenta/query"
 
 	"github.com/fragmenta/fragmenta-app/src/lib/resource"
@@ -34,6 +35,10 @@ func TestSetup(t *testing.T) {
 	// Delete all users to ensure we get consistent results?
 	query.ExecSQL("delete from users;")
 	query.ExecSQL("ALTER SEQUENCE users_id_seq RESTART WITH 1;")
+
+	// Insert a test user for checking logins
+	query.ExecSQL("INSERT INTO users VALUES(1,NOW(),NOW(),'example@example.com','test',0,10,'$2a$10$2IUzpI/yH0Xc.qs9Z5UUL.3f9bqi0ThvbKs6Q91UOlyCEGY8hdBw6');")
+
 }
 
 // Test GET /users/create
@@ -216,5 +221,89 @@ func TestDeleteUser(t *testing.T) {
 	if w.Code != http.StatusFound {
 		t.Fatalf("useractions: unexpected response code for HandleDestroy expected:%d got:%d", http.StatusFound, w.Code)
 	}
+
+}
+
+// Test GET /users/login
+func TestShowLogin(t *testing.T) {
+
+	// Create request context with admin user
+	w, c := resource.GetRequestContext("/users/login", "/users/login", users.MockAdmin())
+
+	// Run the handler
+	err := HandleLoginShow(c)
+
+	// Check for redirect as they are considered logged in
+	if err != nil || w.Code != http.StatusFound {
+		t.Fatalf("useractions: error handling HandleLoginShow %s", err)
+	}
+
+	// Create request context with anon user
+	w, c = resource.GetRequestContext("/users/login", "/users/login", users.MockAnon())
+
+	// Run the handler
+	err = HandleLoginShow(c)
+
+	// Test the error response
+	if err != nil || w.Code != http.StatusOK {
+		t.Fatalf("useractions: error handling HandleLoginShow %s", err)
+	}
+
+	// Test the body for a known pattern
+	pattern := "password"
+	if !strings.Contains(w.Body.String(), pattern) {
+		t.Fatalf("useractions: unexpected response for HandleLoginShow expected:%s got:%s", pattern, w.Body.String())
+	}
+
+}
+
+// Test POST /users/login
+func TestLogin(t *testing.T) {
+
+	// These need to match entries in the test db for this to work
+	form := url.Values{}
+	form.Add("email", "example@example.com")
+	form.Add("password", "Hunter2")
+	body := strings.NewReader(form.Encode())
+
+	// Test posting to the login link, we expect success as setup inserts this user
+	w, c := resource.PostRequestContext("/users/1/destroy", "/users/{id:[0-9]+}/destroy", body, users.MockAnon())
+
+	// Run the handler
+	err := HandleLogin(c)
+	if err != nil || w.Code != http.StatusFound {
+		t.Fatalf("useractions: error on HandleLogin %s", err)
+	}
+
+}
+
+// Test POST /users/logout
+func TestLogout(t *testing.T) {
+
+	// Test posting to logout link to log the user out
+	w, c := resource.PostRequestContext("/users/1/destroy", "/users/{id:[0-9]+}/destroy", nil, users.MockAnon())
+
+	// Store something in the session
+	session, err := auth.Session(w, c.Request())
+	if err != nil {
+		t.Fatalf("#error problem retrieving session")
+	}
+
+	// Set the cookie with user ID
+	session.Set(auth.SessionUserKey, fmt.Sprintf("%d", 99))
+	session.Save(w)
+
+	// Run the handler
+	err = HandleLogout(c)
+	if err != nil {
+		t.Fatalf("useractions: error on HandleLogout %s", err)
+	}
+
+	// Check we've set an empty session on this outgoing writer
+	if !strings.Contains(string(w.Header().Get("Set-Cookie")), auth.SessionName+"=;") {
+		t.Fatalf("useractions: error on HandleLogout - session not cleared")
+	}
+
+	// TODO - to better test this we should have an integration test with a server
 
 }

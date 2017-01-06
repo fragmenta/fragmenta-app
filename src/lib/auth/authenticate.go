@@ -36,9 +36,9 @@ func CurrentUser(context router.Context) *users.User {
 
 	// Fetch the current user record if we have one recorded in the session
 	var id int64
-	ids := session.Get(auth.SessionUserKey)
-	if len(ids) > 0 {
-		id, err = strconv.ParseInt(ids, 10, 64)
+	val := session.Get(auth.SessionUserKey)
+	if len(val) > 0 {
+		id, err = strconv.ParseInt(val, 10, 64)
 		if err != nil {
 			context.Logf("#error Error decoding session user key:%s\n", err)
 			return user

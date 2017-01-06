@@ -14,13 +14,21 @@ import (
 type User struct {
 	// resource.Base defines behaviour and fields shared between all resources
 	resource.Base
+
 	// status.ResourceStatus defines a status field and associated behaviour
 	status.ResourceStatus
 
-	Email             string
-	EncryptedPassword string
-	Name              string
-	Role              int64
+	// Authorisation
+	Role int64
+
+	// Authentication
+	PasswordHash       string
+	PasswordResetToken string
+	PasswordResetAt    time.Time
+
+	// User details
+	Email string
+	Name  string
 }
 
 const (
@@ -46,9 +54,12 @@ func NewWithColumns(cols map[string]interface{}) *User {
 	user.UpdatedAt = resource.ValidateTime(cols["updated_at"])
 	user.Status = resource.ValidateInt(cols["status"])
 	user.Email = resource.ValidateString(cols["email"])
-	user.EncryptedPassword = resource.ValidateString(cols["encrypted_password"])
 	user.Name = resource.ValidateString(cols["name"])
 	user.Role = resource.ValidateInt(cols["role"])
+
+	user.PasswordHash = resource.ValidateString(cols["password_hash"])
+	user.PasswordResetToken = resource.ValidateString(cols["password_reset_token"])
+	user.PasswordResetAt = resource.ValidateTime(cols["password_reset_at"])
 
 	return user
 }
@@ -62,6 +73,16 @@ func New() *User {
 	user.KeyName = KeyName
 	user.Status = status.Draft
 	return user
+}
+
+// FindFirst fetches a single user record from the database using
+// a where query with the format and args provided.
+func FindFirst(format string, args ...interface{}) (*User, error) {
+	result, err := Query().Where(format, args...).FirstResult()
+	if err != nil {
+		return nil, err
+	}
+	return NewWithColumns(result), nil
 }
 
 // Find fetches a single user record from the database by id.

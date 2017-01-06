@@ -6,7 +6,11 @@
     </section>
   
     <section class="inline-fields">
+        {{ select "Status" "status" .user.Status .user.StatusOptions }}
+        {{ select "Role" "role" .user.Role .user.RoleOptions }}
         {{ field "Name" "name" .user.Name }}
+        {{ field "Email" "email" .user.Email }}
+        {{ field "Password" "password" "" "password" "type=password" }}
     </section>
     
 </form>

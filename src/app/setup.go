@@ -9,6 +9,9 @@ import (
 	"github.com/fragmenta/server"
 	"github.com/fragmenta/server/log"
 	"github.com/fragmenta/view"
+
+	"github.com/fragmenta/fragmenta-app/src/lib/mail"
+	"github.com/fragmenta/fragmenta-app/src/lib/mail/adapters/sendgrid"
 )
 
 // Config is used to pass settings to setup functions.
@@ -26,6 +29,9 @@ func Setup(server *server.Server) {
 
 	// Setup log
 	server.Logger = log.New(server.Config("log"), server.Production())
+
+	// Set up our mail adapter
+	SetupMail(server)
 
 	// Set up our assets
 	SetupAssets(server)
@@ -51,6 +57,12 @@ func Setup(server *server.Server) {
 	// Inform user of imminent server setup
 	server.Logf("#info Starting server in %s mode on port %d", server.Mode(), server.Port())
 
+}
+
+// SetupMail sets us up to send mail via sendgrid (requires key).
+func SetupMail(server *server.Server) {
+	mail.Production = server.Production()
+	mail.Service = sendgrid.New(server.Config("mail_from"), server.Config("mail_secret"))
 }
 
 // SetupAssets compiles or copies our assets from src into the public assets folder.
